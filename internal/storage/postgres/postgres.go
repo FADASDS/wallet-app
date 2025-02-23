@@ -2,7 +2,9 @@ package postgres
 
 import (
 	"database/sql"
+	"fmt"
 	_ "github.com/lib/pq"
+	"os"
 	"wallet-app/internal/dto"
 )
 
@@ -14,7 +16,13 @@ type storePG struct {
 func NewStorage() (*storePG, error) {
 	var store storePG
 
-	connStr := "user=postgres password=postgres dbname=postgres sslmode=disable"
+	user := os.Getenv("DB_USER")
+	password := os.Getenv("DB_PASSWORD")
+	dbName := os.Getenv("DB_NAME")
+	//Не стал отдельно добавлять проверки,
+	//так как при отсутствии одной из переменных error всё равно выкинет sql.Open
+	connStr := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable", user, password, dbName)
+
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		panic(err)
