@@ -23,9 +23,9 @@ func (t *TransactionHandler) GetLastNTransactions(w http.ResponseWriter, req *ht
 	}
 	n, err := strconv.ParseInt(count, 10, 64)
 
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		response, _ := json.Marshal(api.Error(http.StatusInternalServerError, "Internal server error"))
+	if err != nil || n <= 0 {
+		w.WriteHeader(http.StatusBadRequest)
+		response, _ := json.Marshal(api.Error(http.StatusBadRequest, "Invalid count parameter"))
 		w.Write(response)
 		return
 	}

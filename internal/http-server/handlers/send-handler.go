@@ -43,5 +43,12 @@ func (h *SendHandler) Send(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	if s.Amount <= 0 {
+		w.WriteHeader(http.StatusBadRequest)
+		response, _ := json.Marshal(api.Error(http.StatusBadRequest, "Invalid amount"))
+		w.Write(response)
+		return
+	}
+
 	h.Store.Send(s.From, s.To, s.Amount)
 }

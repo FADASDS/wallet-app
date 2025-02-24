@@ -15,20 +15,18 @@ type WalletHandler struct {
 
 func (h *WalletHandler) GetBalance(w http.ResponseWriter, req *http.Request) {
 
-	defer req.Body.Close()
-
-	path := req.URL.Path
 	w.Header().Set("Content-Type", "application/json")
 
-	parts := strings.Split(path, "/")
-	if len(parts) != 5 {
+	address := strings.TrimPrefix(req.URL.Path, "/api/wallet/")
+	address = strings.TrimSuffix(address, "/balance")
+	if address == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		response, _ := json.Marshal(api.Error(http.StatusBadRequest, "No enough parameters (address)!"))
 		w.Write(response)
 		return
 	}
 
-	data, err := h.Store.GetWalletBalance(parts[3])
+	data, err := h.Store.GetWalletBalance(address)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		response, _ := json.Marshal(api.Error(http.StatusNotFound, "GetWalletBalance error!"))
