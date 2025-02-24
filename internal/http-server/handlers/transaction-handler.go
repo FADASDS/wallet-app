@@ -48,7 +48,7 @@ func (t *TransactionHandler) GetLastNTransactions(w http.ResponseWriter, req *ht
 		return
 	}
 
-	log.Println("[INFO] Транзакция успешно завершена.")
+	log.Println("[INFO] Transaction success.")
 	response, _ := json.Marshal(response.DataOkRsp(data))
 	w.Write(response)
 }

@@ -18,8 +18,8 @@ func main() {
 	mux.HandleFunc("/api/wallet/", walletHandler.ServeHTTP)
 	mux.HandleFunc("/api/transactions", transactionHandler.ServeHTTP)
 
-	log.Println("[INFO] Запуск веб-сервера на http://localhost:4000")
-	err = http.ListenAndServe(":4000", mux)
+	log.Println("[INFO] Starting web-server http://localhost:8080")
+	err = http.ListenAndServe(":8080", mux)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -9,7 +9,6 @@ RUN go build -o app ./cmd/app
 FROM alpine
 WORKDIR /wallet-app
 COPY --from=build-stage /wallet-app/app /wallet-app/app
-ENV APP_PORT=4000
-EXPOSE "$APP_PORT"
+EXPOSE 8080
 CMD ["/wallet-app/app"]
 

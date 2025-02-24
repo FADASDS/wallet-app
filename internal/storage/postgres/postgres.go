@@ -6,7 +6,6 @@ import (
 	_ "github.com/lib/pq"
 	"log"
 	"os"
-	"time"
 	"wallet-app/internal/dto"
 )
 
@@ -17,13 +16,15 @@ type storePG struct {
 
 func NewStorage() (*storePG, error) {
 	var store storePG
-	log.Fatalln("[INFO] Creating postgres store")
+	log.Println("[INFO] Creating postgres store")
+	host := os.Getenv("DB_HOST")
+	port := os.Getenv("DB_PORT")
 	user := os.Getenv("DB_USER")
 	password := os.Getenv("DB_PASSWORD")
 	dbName := os.Getenv("DB_NAME")
 	//Не стал отдельно добавлять проверки,
 	//так как при отсутствии одной из переменных error всё равно выкинет sql.Open
-	connStr := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable", user, password, dbName)
+	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbName)
 
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
@@ -59,7 +60,7 @@ func (s *storePG) Send(from string, to string, amount float64) error {
 		return err
 	}
 
-	_, err = tx.Exec("INSERT INTO transactions_tbl (from_wallet, to_wallet, amount, date) VALUES ($1, $2, $3, $4)", from, to, amount, time.Now())
+	_, err = tx.Exec("INSERT INTO transactions_tbl (from_wallet, to_wallet, amount) VALUES ($1, $2, $3)", from, to, amount)
 	if err != nil {
 		log.Println("[ERROR] Failed to add transaction: ", err)
 		return err
