@@ -17,7 +17,7 @@ type storePG struct {
 
 func NewStorage() (*storePG, error) {
 	var store storePG
-
+	log.Fatalln("[INFO] Creating postgres store")
 	user := os.Getenv("DB_USER")
 	password := os.Getenv("DB_PASSWORD")
 	dbName := os.Getenv("DB_NAME")
@@ -27,7 +27,7 @@ func NewStorage() (*storePG, error) {
 
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
-		panic(err)
+		log.Fatalln("[ERROR] Failed to connect postgres db: ", err)
 	}
 	store.db = db
 	return &store, nil
@@ -37,7 +37,7 @@ func NewStorage() (*storePG, error) {
 func (s *storePG) Send(from string, to string, amount float64) error {
 	tx, err := s.db.Begin()
 	if err != nil {
-		log.Println("Ошибка открытии транзакции: ", err)
+		log.Println("[ERROR] Failed to open transaction: ", err)
 		return err
 	}
 
@@ -49,25 +49,25 @@ func (s *storePG) Send(from string, to string, amount float64) error {
 
 	_, err = tx.Exec("UPDATE wallet_tbl SET balance=balance-$1 WHERE id=$2", amount, from)
 	if err != nil {
-		log.Println("Ошибка при списании: ", err)
+		log.Println("[ERROR] Failed to withdraw money: ", err)
 		return err
 	}
 
 	_, err = tx.Exec("UPDATE wallet_tbl SET balance=balance+$1 WHERE id=$2", amount, to)
 	if err != nil {
-		log.Println("Ошибка при начислении: ", err)
+		log.Println("[ERROR] Failed to credit to an wallet: ", err)
 		return err
 	}
 
 	_, err = tx.Exec("INSERT INTO transactions_tbl (from_wallet, to_wallet, amount, date) VALUES ($1, $2, $3, $4)", from, to, amount, time.Now())
 	if err != nil {
-		log.Println("Ошибка при добавлении транзакции: ", err)
+		log.Println("[ERROR] Failed to add transaction: ", err)
 		return err
 	}
 
 	err = tx.Commit()
 	if err != nil {
-		log.Println("Ошибка при завершении транзакции: ", err)
+		log.Println("[ERROR] Failed to commit transaction: ", err)
 		return err
 	}
 
@@ -80,7 +80,7 @@ func (s *storePG) GetLastNTransactions(n int64) ([]dto.TransactionDTO, error) {
 	rows, err := s.db.Query("SELECT * FROM transactions_tbl ORDER BY crtn_date LIMIT $1", n)
 
 	if err != nil {
-		log.Println("Ошибка при получении списка транзакций: ", err)
+		log.Println("[ERROR] Failed to get transaction list: ", err)
 		return nil, err
 	}
 
@@ -89,7 +89,7 @@ func (s *storePG) GetLastNTransactions(n int64) ([]dto.TransactionDTO, error) {
 		err = rows.Scan(&transactionItem.TransactionId, &transactionItem.From,
 			&transactionItem.To, &transactionItem.Date, &transactionItem.Amount)
 		if err != nil {
-			log.Println("Ошибка при получении транзакции: ", err)
+			log.Println("[ERROR] ОFailed to get transaction: ", err)
 			return nil, err
 		}
 		transaction = append(transaction, transactionItem)
@@ -105,7 +105,7 @@ func (s *storePG) GetWalletBalance(address string) (*dto.WalletBalanceDTO, error
 	err := row.Scan(&walletBalance.WalletId, &walletBalance.Balance)
 
 	if err != nil {
-		log.Println("Ошибка при получении баланса кошелька: ", err)
+		log.Println("[ERROR] Failed to get wallet balance: ", err)
 		return nil, err
 	}
 
