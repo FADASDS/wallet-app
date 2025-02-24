@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq"
+	"log"
 	"os"
 	"time"
 	"wallet-app/internal/dto"
@@ -36,6 +37,7 @@ func NewStorage() (*storePG, error) {
 func (s *storePG) Send(from string, to string, amount float64) error {
 	tx, err := s.db.Begin()
 	if err != nil {
+		log.Println("Ошибка открытии транзакции: ", err)
 		return err
 	}
 
@@ -47,21 +49,25 @@ func (s *storePG) Send(from string, to string, amount float64) error {
 
 	_, err = tx.Exec("UPDATE wallet_tbl SET balance=balance-$1 WHERE id=$2", amount, from)
 	if err != nil {
+		log.Println("Ошибка при списании: ", err)
 		return err
 	}
 
 	_, err = tx.Exec("UPDATE wallet_tbl SET balance=balance+$1 WHERE id=$2", amount, to)
 	if err != nil {
+		log.Println("Ошибка при начислении: ", err)
 		return err
 	}
 
 	_, err = tx.Exec("INSERT INTO transactions_tbl (from_wallet, to_wallet, amount, date) VALUES ($1, $2, $3, $4)", from, to, amount, time.Now())
 	if err != nil {
+		log.Println("Ошибка при добавлении транзакции: ", err)
 		return err
 	}
 
 	err = tx.Commit()
 	if err != nil {
+		log.Println("Ошибка при завершении транзакции: ", err)
 		return err
 	}
 
@@ -71,9 +77,10 @@ func (s *storePG) Send(from string, to string, amount float64) error {
 func (s *storePG) GetLastNTransactions(n int64) ([]dto.TransactionDTO, error) {
 
 	var transaction []dto.TransactionDTO
-	rows, err := s.db.Query("SELECT * FROM wallet_tbl ORDER BY crtn_date LIMIT $1", n)
+	rows, err := s.db.Query("SELECT * FROM transactions_tbl ORDER BY crtn_date LIMIT $1", n)
 
 	if err != nil {
+		log.Println("Ошибка при получении списка транзакций: ", err)
 		return nil, err
 	}
 
@@ -82,6 +89,7 @@ func (s *storePG) GetLastNTransactions(n int64) ([]dto.TransactionDTO, error) {
 		err = rows.Scan(&transactionItem.TransactionId, &transactionItem.From,
 			&transactionItem.To, &transactionItem.Date, &transactionItem.Amount)
 		if err != nil {
+			log.Println("Ошибка при получении транзакции: ", err)
 			return nil, err
 		}
 		transaction = append(transaction, transactionItem)
@@ -97,6 +105,7 @@ func (s *storePG) GetWalletBalance(address string) (*dto.WalletBalanceDTO, error
 	err := row.Scan(&walletBalance.WalletId, &walletBalance.Balance)
 
 	if err != nil {
+		log.Println("Ошибка при получении баланса кошелька: ", err)
 		return nil, err
 	}
 

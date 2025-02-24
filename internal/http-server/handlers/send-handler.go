@@ -17,9 +17,9 @@ type SendHandler struct {
 }
 
 type Transaction struct {
-	from   string  `json:"from"`
-	to     string  `json:"to"`
-	amount float64 `json:"amount"`
+	From   string  `json:"from"`
+	To     string  `json:"to"`
+	Amount float64 `json:"amount"`
 }
 
 func (h *SendHandler) Send(w http.ResponseWriter, req *http.Request) {
@@ -30,16 +30,18 @@ func (h *SendHandler) Send(w http.ResponseWriter, req *http.Request) {
 	var s Transaction
 	body, err := io.ReadAll(req.Body)
 	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
 		response, _ := json.Marshal(api.Error(http.StatusInternalServerError, "Internal server error"))
 		w.Write(response)
 		return
 	}
 	err = json.Unmarshal(body, &s)
 	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
 		response, _ := json.Marshal(api.Error(http.StatusInternalServerError, "Internal server error"))
 		w.Write(response)
 		return
 	}
 
-	h.Store.Send(s.from, s.to, s.amount)
+	h.Store.Send(s.From, s.To, s.Amount)
 }

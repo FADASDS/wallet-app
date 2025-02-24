@@ -22,6 +22,7 @@ func (h *WalletHandler) GetBalance(w http.ResponseWriter, req *http.Request) {
 
 	parts := strings.Split(path, "/")
 	if len(parts) != 5 {
+		w.WriteHeader(http.StatusBadRequest)
 		response, _ := json.Marshal(api.Error(http.StatusBadRequest, "No enough parameters (address)!"))
 		w.Write(response)
 		return
@@ -29,6 +30,7 @@ func (h *WalletHandler) GetBalance(w http.ResponseWriter, req *http.Request) {
 
 	data, err := h.Store.GetWalletBalance(parts[3])
 	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
 		response, _ := json.Marshal(api.Error(http.StatusNotFound, "GetWalletBalance error!"))
 		w.Write(response)
 		return
@@ -44,6 +46,9 @@ func (h *WalletHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		h.GetBalance(w, req)
 		return
 	default:
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		response, _ := json.Marshal(api.Error(http.StatusMethodNotAllowed, "Unsupported method!"))
+		w.Write(response)
 		return
 	}
 }

@@ -16,9 +16,11 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/send/", sendHandler.Send)
 	mux.HandleFunc("/api/wallet/", walletHandler.ServeHTTP)
-	mux.HandleFunc("/api/transactions/", transactionHandler.ServeHTTP)
+	mux.HandleFunc("/api/transactions", transactionHandler.ServeHTTP)
 
-	log.Println("Запуск веб-сервера на http://127.0.0.1:4000")
+	log.Println("Запуск веб-сервера на http://localhost:4000")
 	err = http.ListenAndServe(":4000", mux)
-	log.Fatal(err)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
