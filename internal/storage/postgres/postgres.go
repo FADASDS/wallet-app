@@ -29,7 +29,7 @@ func NewStorage() (*StorePG, error) {
 
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
-		log.Fatalln("[ERROR] Failed to connect postgres Db: ", err)
+		return nil, err
 	}
 	store.Db = db
 	return &store, nil

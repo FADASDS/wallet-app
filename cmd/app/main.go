@@ -9,6 +9,11 @@ import (
 
 func main() {
 	store, err := postgres.NewStorage()
+	if err != nil {
+		log.Fatal("[ERROR] Failed to connect: ", err)
+	}
+	defer store.Db.Close()
+
 	walletHandler := &handlers.WalletHandler{Store: store}
 	sendHandler := &handlers.SendHandler{Store: store}
 	transactionHandler := &handlers.TransactionHandler{Store: store}
@@ -18,8 +23,9 @@ func main() {
 	mux.HandleFunc("/api/wallet/", walletHandler.ServeHTTP)
 	mux.HandleFunc("/api/transactions", transactionHandler.ServeHTTP)
 
-	log.Println("[INFO] Starting web-server http://localhost:8080")
 	err = http.ListenAndServe(":8080", mux)
+	log.Println("[INFO] Starting web-server http://localhost:8080")
+
 	if err != nil {
 		log.Fatal(err)
 	}
