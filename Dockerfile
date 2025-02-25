@@ -4,6 +4,7 @@ WORKDIR "$APP_HOME"
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
+RUN go test -v ./tests/
 RUN go build -o app ./cmd/app
 
 FROM alpine
