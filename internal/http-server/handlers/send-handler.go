@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"wallet-app/internal/lib/api"
+	"wallet-app/internal/lib/api/response"
 	"wallet-app/internal/storage"
 )
 
@@ -30,6 +31,7 @@ func (h *SendHandler) Send(w http.ResponseWriter, req *http.Request) {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		response, _ := json.Marshal(api.Error(http.StatusMethodNotAllowed, "Unsupported method!"))
 		w.Write(response)
+		return
 	}
 
 	log.Println("[INFO] Received send request")
@@ -58,7 +60,7 @@ func (h *SendHandler) Send(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if s.Amount <= 0 {
-		log.Println("[ERROR] Invalid amount for send retrieved: ", err)
+		log.Println("[ERROR] Invalid amount for send retrieved")
 		w.WriteHeader(http.StatusBadRequest)
 		response, _ := json.Marshal(api.Error(http.StatusBadRequest, "Invalid amount"))
 		w.Write(response)
@@ -73,5 +75,9 @@ func (h *SendHandler) Send(w http.ResponseWriter, req *http.Request) {
 		w.Write(response)
 		return
 	}
+
 	log.Println("[INFO] Money sent successfully.")
+
+	response, _ := json.Marshal(response.EmptyOkRsp())
+	w.Write(response)
 }

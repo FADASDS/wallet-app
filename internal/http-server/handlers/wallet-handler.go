@@ -25,7 +25,7 @@ func (h *WalletHandler) GetBalance(w http.ResponseWriter, req *http.Request) {
 	if address == "" {
 		log.Println("[ERROR] Invalid address")
 		w.WriteHeader(http.StatusBadRequest)
-		response, _ := json.Marshal(api.Error(http.StatusBadRequest, "No enough parameters (address)!"))
+		response, _ := json.Marshal(api.Error(http.StatusBadRequest, "Not enough parameters (address)!"))
 		w.Write(response)
 		return
 	}
