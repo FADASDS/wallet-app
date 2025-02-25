@@ -1,3 +1,4 @@
+// Package main является точкой входа в приложение
 package main
 
 import (
@@ -7,6 +8,7 @@ import (
 	"wallet-app/internal/storage/postgres"
 )
 
+// Функция, являющаяся точкой входа в приложение. Запускает сервер, создаёт экземпляр хранилища и обработчики
 func main() {
 	store, err := postgres.NewStorage()
 	if err != nil {

@@ -5,15 +5,16 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"wallet-app/internal/lib/api"
 	"wallet-app/internal/lib/api/response"
 	"wallet-app/internal/storage"
 )
 
+// TransactionHandler cтруктура для описания обработчика для запроса на получение N последних транзакций.
 type TransactionHandler struct {
 	Store storage.Storrer
 }
 
+// GetLastNTransactions метод отвечающий за обработку запроса.
 func (t *TransactionHandler) GetLastNTransactions(w http.ResponseWriter, req *http.Request) {
 	log.Println("[INFO] Received get last n transactions request")
 
@@ -21,7 +22,7 @@ func (t *TransactionHandler) GetLastNTransactions(w http.ResponseWriter, req *ht
 	if count == "" {
 		log.Println("[ERROR] Failed to get 'count' parameter")
 		w.WriteHeader(http.StatusBadRequest)
-		response, _ := json.Marshal(api.Error(http.StatusBadRequest, "'count' parameter is missing."))
+		response, _ := json.Marshal(response.Error(http.StatusBadRequest, "'count' parameter is missing."))
 		w.Write(response)
 		return
 	}
@@ -34,7 +35,7 @@ func (t *TransactionHandler) GetLastNTransactions(w http.ResponseWriter, req *ht
 			log.Println("[ERROR] Invalid 'count' parameter")
 		}
 		w.WriteHeader(http.StatusBadRequest)
-		response, _ := json.Marshal(api.Error(http.StatusBadRequest, "Invalid 'count' parameter."))
+		response, _ := json.Marshal(response.Error(http.StatusBadRequest, "Invalid 'count' parameter."))
 		w.Write(response)
 		return
 	}
@@ -43,7 +44,7 @@ func (t *TransactionHandler) GetLastNTransactions(w http.ResponseWriter, req *ht
 	if err != nil {
 		log.Println("[ERROR] Failed to get last transactions", err)
 		w.WriteHeader(http.StatusNotFound)
-		response, _ := json.Marshal(api.Error(http.StatusNotFound, "Get last NTransactions error!"))
+		response, _ := json.Marshal(response.Error(http.StatusNotFound, "Get last NTransactions error!"))
 		w.Write(response)
 		return
 	}
@@ -53,6 +54,7 @@ func (t *TransactionHandler) GetLastNTransactions(w http.ResponseWriter, req *ht
 	w.Write(response)
 }
 
+// ServeHTTP метод отвечающий за маршрутизацию запроса.
 func (t *TransactionHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	switch {
@@ -63,7 +65,7 @@ func (t *TransactionHandler) ServeHTTP(w http.ResponseWriter, req *http.Request)
 	default:
 		log.Println("[INFO] Received unsupported request")
 		w.WriteHeader(http.StatusMethodNotAllowed)
-		response, _ := json.Marshal(api.Error(http.StatusMethodNotAllowed, "Unsupported method!"))
+		response, _ := json.Marshal(response.Error(http.StatusMethodNotAllowed, "Unsupported method!"))
 		w.Write(response)
 		return
 	}

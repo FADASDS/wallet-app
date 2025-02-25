@@ -8,7 +8,6 @@ import (
 	"testing"
 	"wallet-app/internal/dto"
 	"wallet-app/internal/http-server/handlers"
-	"wallet-app/internal/lib/api"
 	"wallet-app/internal/lib/api/response"
 	"wallet-app/internal/storage"
 )
@@ -72,7 +71,7 @@ func TestGetWalletBalance_wrongWalletAddress(t *testing.T) {
 		t.Fatal("Error reading response body:", err)
 	}
 
-	var errResp api.ErrorResponse
+	var errResp response.ErrorResponse
 	err = json.Unmarshal(body, &errResp)
 	if err != nil {
 		t.Fatal("JSON unmarshal error:", err)
@@ -103,7 +102,7 @@ func TestGetWalletBalance_noParams(t *testing.T) {
 		t.Fatal("Error reading response body:", err)
 	}
 
-	var errResp api.ErrorResponse
+	var errResp response.ErrorResponse
 	err = json.Unmarshal(body, &errResp)
 	if err != nil {
 		t.Fatal("JSON unmarshal error:", err)
@@ -134,7 +133,7 @@ func TestGetWalletBalance_wrongMethod(t *testing.T) {
 		t.Fatal("Error reading response body:", err)
 	}
 
-	var errResp api.ErrorResponse
+	var errResp response.ErrorResponse
 	err = json.Unmarshal(body, &errResp)
 	if err != nil {
 		t.Fatal("JSON unmarshal error:", err)

@@ -1,3 +1,4 @@
+// Package postgres содержит методы и структуру для работы с PostgreSQL.
 package postgres
 
 import (
@@ -10,11 +11,12 @@ import (
 	"wallet-app/internal/dto"
 )
 
-// TODO перейти с прямых запросов на миграции
+// StorePG структура, являющаяся хранилищем PostgreSQL.
 type StorePG struct {
 	Db *sql.DB
 }
 
+// NewStorage функция, конструирующая хранилище PostgreSQL.
 func NewStorage() (*StorePG, error) {
 	var store StorePG
 	log.Println("[INFO] Creating postgres store")
@@ -36,6 +38,7 @@ func NewStorage() (*StorePG, error) {
 
 }
 
+// Send функция, реализующая перевод средства с одного кошелька на другой.
 func (s *StorePG) Send(from string, to string, amount float64) error {
 	tx, err := s.Db.Begin()
 	if err != nil {
@@ -76,6 +79,7 @@ func (s *StorePG) Send(from string, to string, amount float64) error {
 	return nil
 }
 
+// GetLastNTransactions функция, реализующая получение последних транзакций.
 func (s *StorePG) GetLastNTransactions(n int64) ([]dto.TransactionDTO, error) {
 
 	var transaction []dto.TransactionDTO
@@ -100,6 +104,7 @@ func (s *StorePG) GetLastNTransactions(n int64) ([]dto.TransactionDTO, error) {
 	return transaction, nil
 }
 
+// GetWalletBalance функция, реализующая получение баланса кошелька.
 func (s *StorePG) GetWalletBalance(address string) (*dto.WalletBalanceDTO, error) {
 	var walletBalance dto.WalletBalanceDTO
 	row := s.Db.QueryRow(`SELECT id, balance FROM wallet_tbl WHERE id = $1`, address)

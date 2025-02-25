@@ -5,15 +5,16 @@ import (
 	"log"
 	"net/http"
 	"strings"
-	"wallet-app/internal/lib/api"
 	"wallet-app/internal/lib/api/response"
 	"wallet-app/internal/storage"
 )
 
+// WalletHandler cтруктура для описания обработчика для запроса на получение баланса кошелька.
 type WalletHandler struct {
 	Store storage.Storrer
 }
 
+// GetBalance метод отвечающий за обработку запроса.
 func (h *WalletHandler) GetBalance(w http.ResponseWriter, req *http.Request) {
 	log.Println("[INFO] Received get wallet balance request")
 
@@ -25,7 +26,7 @@ func (h *WalletHandler) GetBalance(w http.ResponseWriter, req *http.Request) {
 	if address == "" {
 		log.Println("[ERROR] Invalid address")
 		w.WriteHeader(http.StatusBadRequest)
-		response, _ := json.Marshal(api.Error(http.StatusBadRequest, "Not enough parameters (address)!"))
+		response, _ := json.Marshal(response.Error(http.StatusBadRequest, "Not enough parameters (address)!"))
 		w.Write(response)
 		return
 	}
@@ -34,7 +35,7 @@ func (h *WalletHandler) GetBalance(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		log.Println("[ERROR] Failed to get balance: ", err)
 		w.WriteHeader(http.StatusNotFound)
-		response, _ := json.Marshal(api.Error(http.StatusNotFound, "GetWalletBalance error!"))
+		response, _ := json.Marshal(response.Error(http.StatusNotFound, "GetWalletBalance error!"))
 		w.Write(response)
 		return
 	}
@@ -45,6 +46,7 @@ func (h *WalletHandler) GetBalance(w http.ResponseWriter, req *http.Request) {
 
 }
 
+// ServeHTTP метод отвечающий за маршрутизацию запроса.
 func (h *WalletHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	switch {
 	case req.Method == http.MethodGet && strings.HasSuffix(req.URL.Path, "/balance"):
@@ -53,7 +55,7 @@ func (h *WalletHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	default:
 		log.Println("[INFO] Received unsupported request")
 		w.WriteHeader(http.StatusMethodNotAllowed)
-		response, _ := json.Marshal(api.Error(http.StatusMethodNotAllowed, "Unsupported method!"))
+		response, _ := json.Marshal(response.Error(http.StatusMethodNotAllowed, "Unsupported method!"))
 		w.Write(response)
 		return
 	}

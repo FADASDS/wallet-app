@@ -1,3 +1,4 @@
+// Package handlers. Пакет включающий в себя обработчики для end point
 package handlers
 
 import (
@@ -5,31 +6,29 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"wallet-app/internal/lib/api"
 	"wallet-app/internal/lib/api/response"
 	"wallet-app/internal/storage"
 )
 
-const (
-	msgErr = "Wrong json"
-)
-
+// SendHandler cтруктура для описания обработчика для запроса send.
 type SendHandler struct {
 	Store storage.Storrer
 }
 
+// Transaction Структура для описания тела запроса send.
 type Transaction struct {
 	From   string  `json:"from"`
 	To     string  `json:"to"`
 	Amount float64 `json:"amount"`
 }
 
+// Send Метод, отвечающий за маршрутизацию и обработку запроса Send
 func (h *SendHandler) Send(w http.ResponseWriter, req *http.Request) {
 
 	if req.Method != http.MethodPost {
 		log.Println("[INFO] Received unsupported request")
 		w.WriteHeader(http.StatusMethodNotAllowed)
-		response, _ := json.Marshal(api.Error(http.StatusMethodNotAllowed, "Unsupported method!"))
+		response, _ := json.Marshal(response.Error(http.StatusMethodNotAllowed, "Unsupported method!"))
 		w.Write(response)
 		return
 	}
@@ -44,7 +43,7 @@ func (h *SendHandler) Send(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		log.Println("[ERROR] Failed to read request body: ", err)
 		w.WriteHeader(http.StatusInternalServerError)
-		response, _ := json.Marshal(api.Error(http.StatusInternalServerError, "Internal server error."))
+		response, _ := json.Marshal(response.Error(http.StatusInternalServerError, "Internal server error."))
 		w.Write(response)
 		return
 	}
@@ -54,7 +53,7 @@ func (h *SendHandler) Send(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		log.Println("[ERROR] Failed to Unmarshal request body: ", err)
 		w.WriteHeader(http.StatusInternalServerError)
-		response, _ := json.Marshal(api.Error(http.StatusInternalServerError, "Internal server error."))
+		response, _ := json.Marshal(response.Error(http.StatusInternalServerError, "Internal server error."))
 		w.Write(response)
 		return
 	}
@@ -62,7 +61,7 @@ func (h *SendHandler) Send(w http.ResponseWriter, req *http.Request) {
 	if s.Amount <= 0 {
 		log.Println("[ERROR] Invalid amount for send retrieved")
 		w.WriteHeader(http.StatusBadRequest)
-		response, _ := json.Marshal(api.Error(http.StatusBadRequest, "Invalid amount"))
+		response, _ := json.Marshal(response.Error(http.StatusBadRequest, "Invalid amount"))
 		w.Write(response)
 		return
 	}
@@ -71,7 +70,7 @@ func (h *SendHandler) Send(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		log.Println("[ERROR] Failed to send money: ", err)
 		w.WriteHeader(http.StatusInternalServerError)
-		response, _ := json.Marshal(api.Error(http.StatusInternalServerError, "Internal server error."))
+		response, _ := json.Marshal(response.Error(http.StatusInternalServerError, "Internal server error."))
 		w.Write(response)
 		return
 	}

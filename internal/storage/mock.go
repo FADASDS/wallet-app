@@ -1,3 +1,4 @@
+// Package storage содержит структуры и методы для работы с различными хранилищами данных.
 package storage
 
 import (
@@ -5,8 +6,10 @@ import (
 	"wallet-app/internal/dto"
 )
 
+// MockStore структура-заглушка для тестирования хэндлеров.
 type MockStore struct{}
 
+// GetLastNTransactions имитирует функцию GetLastNTransactions для тестирования хэндлеров.
 func (m *MockStore) GetLastNTransactions(n int64) ([]dto.TransactionDTO, error) {
 	return []dto.TransactionDTO{
 		{TransactionId: "tx-1", From: "wallet1", To: "wallet2", Amount: 100.0},
@@ -15,6 +18,7 @@ func (m *MockStore) GetLastNTransactions(n int64) ([]dto.TransactionDTO, error) 
 	}, nil
 }
 
+// Send имитирует функцию Send для тестирования хэндлеров.
 func (m *MockStore) Send(from string, to string, amount float64) error {
 	walletId1 := "wallet_1"
 	walletId2 := "wallet_2"
@@ -32,6 +36,7 @@ func (m *MockStore) Send(from string, to string, amount float64) error {
 	return nil
 }
 
+// GetWalletBalance имитирует функцию GetWalletBalance для тестирования хэндлеров.
 func (m *MockStore) GetWalletBalance(address string) (*dto.WalletBalanceDTO, error) {
 	if address == "wallet_1" {
 		return &dto.WalletBalanceDTO{WalletId: "wallet_1", Balance: 100.0}, nil
